@@ -49,7 +49,7 @@ type RPCReply struct {
 	XMLName  xml.Name   `xml:"rpc-reply"`
 	Errors   []RPCError `xml:"rpc-error,omitempty"`
 	Data     string     `xml:",innerxml"`
-	Ok       bool       `xml:",omitempty"`
+	Ok       bool       `xml:"ok,omitempty"`
 	RawReply string     `xml:"-"`
 }
 
@@ -60,6 +60,11 @@ func newRPCReply(rawXML []byte, ErrOnWarning bool) (*RPCReply, error) {
 	if err := xml.Unmarshal(rawXML, reply); err != nil {
 		return nil, err
 	}
+
+	// ugly workaround for golang's XML unmarshaling of empty tags
+	// if <ok/> is missing then omitempty behavior makes Ok true
+	// if <ok/> is present then omitempty behavior makes OK the value of that tag (nil) which then translates to false
+	reply.Ok = !reply.Ok
 
 	if reply.Errors != nil {
 		for _, rpcErr := range reply.Errors {
