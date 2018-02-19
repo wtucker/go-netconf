@@ -149,7 +149,7 @@ func TestUUIDChar(t *testing.T) {
 
 var RPCReplytests = []struct {
 	rawXML  string
-	replyOk bool
+	replyOk RPCReplyOk
 }{
 	{
 		`
@@ -158,7 +158,7 @@ var RPCReplytests = []struct {
 </commit-results>
 <ok/>
 </rpc-reply>`,
-		false,
+		RPCReplyOk{true},
 	},
 	{
 		`
@@ -184,7 +184,7 @@ configuration check-out failed: (missing mandatory statements)
 </rpc-error>
 </commit-results>
 </rpc-reply>`,
-		false,
+		RPCReplyOk{false},
 	},
 	{
 		`
@@ -213,7 +213,7 @@ configuration check-out failed: (missing mandatory statements)
 </commit-results>
 <ok/>
 </rpc-reply>`,
-		false,
+		RPCReplyOk{true},
 	},
 }
 
@@ -225,6 +225,9 @@ func TestNewRPCReply(t *testing.T) {
 		}
 		if reply.RawReply != tc.rawXML {
 			t.Errorf("newRPCReply(%q) did not set RawReply to input, got %q", tc.rawXML, reply.RawReply)
+		}
+		if reply.Ok != tc.replyOk {
+			t.Errorf("newRPCReply(%q).Ok == %v, want %v", tc.rawXML, reply.Ok, tc.replyOk)
 		}
 	}
 }

@@ -49,7 +49,7 @@ type RPCReply struct {
 	XMLName  xml.Name   `xml:"rpc-reply"`
 	Errors   []RPCError `xml:"rpc-error,omitempty"`
 	Data     string     `xml:",innerxml"`
-	Ok       bool       `xml:",omitempty"`
+	Ok       RPCReplyOk `xml:"ok,omitempty"`
 	RawReply string     `xml:"-"`
 }
 
@@ -70,6 +70,17 @@ func newRPCReply(rawXML []byte, ErrOnWarning bool) (*RPCReply, error) {
 	}
 
 	return reply, nil
+}
+
+type RPCReplyOk struct {
+	bool
+}
+
+func (c *RPCReplyOk) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var v string
+	d.DecodeElement(&v, &start)
+	*c = RPCReplyOk{true}
+	return nil
 }
 
 // RPCError defines an error reply to a RPC request
